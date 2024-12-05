@@ -1,16 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <string.h>
 
-#define BLOCK_DIM_SIZE 4
-#define BLOCK_SIZE 16
-#define KEY_SIZE 128
-#define N_ROUNDS 10
-
-typedef struct Block {
-  uint8_t data[BLOCK_DIM_SIZE][BLOCK_DIM_SIZE];
-} Block;
+#include "utils.h"
 
 void print_block(const Block *block) {
   for (int i = 0; i < BLOCK_DIM_SIZE; i++) {
