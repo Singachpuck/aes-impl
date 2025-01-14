@@ -4,6 +4,14 @@
 
 #include "utils.h"
 
+// void print_hex(const uint8_t* bytes, const size_t size) {
+//   for (int j = 0; j < size; j++) {
+//     printf("%02x ", bytes[j]);
+//     // printf("%c ", block->data[j][i]);
+//   }
+//   printf("\n");
+// }
+
 void print_block(const Block *block) {
   for (int i = 0; i < BLOCK_DIM_SIZE; i++) {
     for (int j = 0; j < BLOCK_DIM_SIZE; j++) {
@@ -44,29 +52,42 @@ uint8_t* assign_next_block(Block* block, uint32_t* block_i, const uint8_t* plain
   return (uint8_t*) block->data;
 }
 
+// TODO: Create Round key generation
 int main(void) {
   uint32_t block_i = 0;
   Block block = {0};
 
   const uint8_t* plaintext = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
   // const uint8_t* plaintext = "HELLO";
+  // const uint8_t ciphertext[strlen(plaintext)];
+  const uint8_t* CEK = "dZ8&hQk3@X$NpV1M";
+
+  set_cek(CEK);
+  // print_hex(get_cek(), CEK_BYTE_N);
+
+  key_expansion();
 
   while (assign_next_block(&block, &block_i, plaintext, strlen(plaintext)) != NULL) {
-    //first round
-    // addRoundKey(roundKeys[0], block);    //intermediate rounds
-    // for (int i = 0; i < N_ROUNDS - 1; i++) {
-    //   subBytes(block);
-    //   shiftRows(block);
-    //   mixColumns(block);
-    //   addRoundKey(roundKeys[i], block);
-    // }
-    //
-    // //last round
-    // subBytes(block);
-    // shiftRows(block);
-    // addRoundKey(roundKeys[numRounds - 1], block);
-    print_block(&block);
+    uint32_t round = 0;
+    add_round_key(round, &block);
+    round++;
+    for (; round < N_ROUNDS; round++) {
+      sub_bytes(&block);
+      shift_rows(&block);
+      mix_columns(&block);
+      add_round_key(round, &block);
+    }
+
+    sub_bytes(&block);
+    shift_rows(&block);
+    add_round_key(round, &block);
+
+    print_hex(block.data, BLOCK_SIZE);
   }
+
+  // for (int i = 1; i <= ROUNDS_N; i++) {
+  //   print_hex(get_round_key(i), CEK_BYTE_N);
+  // }
 
   printf("AES Works!\n");
   return EXIT_SUCCESS;
